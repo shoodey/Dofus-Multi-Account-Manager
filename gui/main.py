@@ -2,7 +2,16 @@ import sys
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QAction, QColor, QGuiApplication, QIcon, QPalette, QPixmap
-from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QStackedLayout, QWidget
+from PySide6.QtWidgets import (
+    QApplication,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QStackedLayout,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
 from lib.shared import __program_name__, __version__
 
@@ -36,28 +45,26 @@ class MainWindow(QMainWindow):
         # Layout
         self.layout = QStackedLayout()
 
-        self.layout.addWidget(Color("red"))
-        self.layout.addWidget(Color("blue"))
+        tabs = QTabWidget()
+        tabs.addTab(Color("red"), "Accounts")
+        tabs.addTab(Color("blue"), "Macros")
+        self.layout.addWidget(tabs)
 
         widget = QWidget()
         widget.setLayout(self.layout)
         self.setCentralWidget(widget)
 
         # Menu Bar
-        self.accounts_button_action = QAction("&Accounts", self)
-        self.accounts_button_action.triggered.connect(self.showAccountsView)
-        self.accounts_button_action.setCheckable(True)
-        self.accounts_button_action.setChecked(True)  # Default View
-        self.accounts_button_action.setDisabled(True)  # Default View
-
-        self.macros_button_action = QAction("&Macros", self)
-        self.macros_button_action.triggered.connect(self.showMacrosView)
-        self.macros_button_action.setCheckable(True)
-
         menu = self.menuBar()
-        view_menu = menu.addMenu("&View")
-        view_menu.addAction(self.accounts_button_action)
-        view_menu.addAction(self.macros_button_action)
+        help_menu = menu.addMenu("Help")
+        help_menu.addAction("About")
+        help_menu.addAction("Check for Updates")
+        help_menu.addSeparator()
+        help_menu.addAction("Report a Bug")
+        help_menu.addAction("Request a Feature")
+        help_menu.addAction("Donate")
+        help_menu.addSeparator()
+        help_menu.addAction("Quit", self.app.quit, "Ctrl+Q")
 
         # Status Bar
         statusBarLabel = QLabel("v" + __version__)
@@ -66,20 +73,6 @@ class MainWindow(QMainWindow):
         self.statusBar().setSizeGripEnabled(False)
         # add padding to the right of the status bar
         self.statusBar().setStyleSheet("padding: 0 5px;")
-
-    def showAccountsView(self, checked):
-        self.accounts_button_action.setDisabled(True)
-        self.macros_button_action.setDisabled(False)
-        self.macros_button_action.setChecked(False)
-        self.layout.setCurrentIndex(0)
-        self.log("Switched to Accounts View")
-
-    def showMacrosView(self, checked):
-        self.macros_button_action.setDisabled(True)
-        self.accounts_button_action.setDisabled(False)
-        self.accounts_button_action.setChecked(False)
-        self.layout.setCurrentIndex(1)
-        self.log("Switched to Macros View")
 
     def log(self, message):
         print("MAIN_WINDOW :: " + message)
